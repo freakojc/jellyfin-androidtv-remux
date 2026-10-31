@@ -25,6 +25,7 @@ import androidx.leanback.widget.RowPresenter;
 import org.jellyfin.androidtv.R;
 import org.jellyfin.androidtv.preference.UserPreferences;
 import org.jellyfin.androidtv.preference.constant.ClockBehavior;
+import org.jellyfin.androidtv.ui.playback.LongPressSpeedController;
 import org.jellyfin.androidtv.ui.playback.PlaybackController;
 import org.jellyfin.androidtv.ui.playback.overlay.action.AndroidAction;
 import org.jellyfin.androidtv.ui.playback.overlay.action.ChannelBarChannelAction;
@@ -71,8 +72,15 @@ public class CustomPlaybackTransportControlGlue extends PlaybackTransportControl
     private RecordAction recordAction;
 
     private final PlaybackController playbackController;
+    private final LongPressSpeedController longPressSpeedController;
     private ArrayObjectAdapter primaryActionsAdapter;
     private ArrayObjectAdapter secondaryActionsAdapter;
+
+    // Long-press speed up state
+    private static final int SPEED_UP_REPEAT_THRESHOLD = 2;
+    private static final long SPEED_UP_MAX_DOWN_TIME_MS = 4000;
+    private long speedUpDownTime = -1;
+    private boolean speedUpActive = false;
 
     // Injected views
     private TextView mEndsText = null;
@@ -86,6 +94,7 @@ public class CustomPlaybackTransportControlGlue extends PlaybackTransportControl
     CustomPlaybackTransportControlGlue(Context context, VideoPlayerAdapter playerAdapter, PlaybackController playbackController) {
         super(context, playerAdapter);
         this.playbackController = playbackController;
+        this.longPressSpeedController = new LongPressSpeedController(playbackController);
 
         mRefreshEndTime = () -> {
             setEndTime();
@@ -371,8 +380,43 @@ public class CustomPlaybackTransportControlGlue extends PlaybackTransportControl
         mHandler.postDelayed(mRefreshViewVisibility, 100);
     }
 
+    private boolean speedUpKey(int keyCode) {
+        return keyCode == KeyEvent.KEYCODE_MEDIA_FAST_FORWARD || keyCode == KeyEvent.KEYCODE_DPAD_RIGHT;
+    }
+
+    private boolean speedUpEnabled() {
+        return KoinJavaComponent.<UserPreferences>get(UserPreferences.class)
+                .get(UserPreferences.Companion.getLongPressSpeedUpEnabled());
+    }
+
+    private void endSpeedUp() {
+        if (speedUpActive || longPressSpeedController.isHolding()) {
+            longPressSpeedController.endHold();
+        }
+        speedUpActive = false;
+        speedUpDownTime = -1;
+    }
+
     @Override
     public boolean onKey(View v, int keyCode, KeyEvent event) {
+        // "Long press to speed up" (ported from the mobile client): while fast-forward is held,
+        // playback runs at 2x instead of repeatedly seeking; release restores the previous speed.
+        if (speedUpKey(keyCode) && speedUpEnabled()) {
+            if (event.getAction() == KeyEvent.ACTION_DOWN) {
+                if (event.getRepeatCount() == 0) {
+                    speedUpDownTime = event.getEventTime();
+                    speedUpActive = false;
+                } else if (!speedUpActive && event.getEventTime() - speedUpDownTime >= 500) {
+                    speedUpActive = true;
+                    longPressSpeedController.startHold(2f);
+                }
+                if (speedUpActive) return true; // consume repeats so no seeking happens while boosting
+            } else if (event.getAction() == KeyEvent.ACTION_UP) {
+                boolean wasActive = speedUpActive || longPressSpeedController.isHolding();
+                endSpeedUp();
+                if (wasActive) return true; // the boosted period is over: do not also seek
+            }
+        }
         if (event.getAction() != KeyEvent.ACTION_UP) {
             // Let the playback glue handle the key before applying the focus fallback below.
             if (super.onKey(v, keyCode, event)) return true;

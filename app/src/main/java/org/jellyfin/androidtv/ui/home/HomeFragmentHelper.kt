@@ -6,6 +6,7 @@ import org.jellyfin.androidtv.auth.repository.UserRepository
 import org.jellyfin.androidtv.constant.ChangeTriggerType
 import org.jellyfin.androidtv.data.repository.ItemRepository
 import org.jellyfin.androidtv.preference.UserPreferences
+import org.jellyfin.androidtv.preference.UserSettingPreferences
 import org.jellyfin.androidtv.ui.browsing.BrowseRowDef
 import org.jellyfin.sdk.model.api.BaseItemDto
 import org.jellyfin.sdk.model.api.BaseItemKind
@@ -20,6 +21,7 @@ class HomeFragmentHelper(
 	private val context: Context,
 	private val userRepository: UserRepository,
 	private val userPreferences: UserPreferences,
+	private val userSettingPreferences: UserSettingPreferences,
 ) {
 	fun loadRecentlyAdded(userViews: Collection<BaseItemDto>): HomeFragmentRow {
 		return HomeFragmentLatestRow(userRepository, userViews)
@@ -59,11 +61,13 @@ class HomeFragmentHelper(
 	fun loadNextUp(): HomeFragmentRow {
 		val maxDays = userPreferences[UserPreferences.homeNextUpMaxDays]
 		val nextUpDateCutoff = maxDays.takeIf { it > 0 }?.let { LocalDateTime.now().minusDays(it.toLong()) }
+		val enableRewatching = userSettingPreferences[UserSettingPreferences.enableRewatchingInNextUp]
 
 		val query = GetNextUpRequest(
 			imageTypeLimit = 1,
 			limit = ITEM_LIMIT_NEXT_UP,
 			enableResumable = false,
+			enableRewatching = enableRewatching,
 			fields = ItemRepository.browseFields,
 			nextUpDateCutoff = nextUpDateCutoff,
 		)

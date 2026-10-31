@@ -5,6 +5,7 @@ import org.jellyfin.androidtv.preference.constant.HdrFormat
 import org.jellyfin.androidtv.ui.navigation.RouteComposable
 import org.jellyfin.androidtv.ui.settings.screen.SettingsDeveloperScreen
 import org.jellyfin.androidtv.ui.settings.screen.SettingsMainScreen
+import org.jellyfin.androidtv.ui.settings.screen.SettingsPersonalPreferencesScreen
 import org.jellyfin.androidtv.ui.settings.screen.SettingsTelemetryScreen
 import org.jellyfin.androidtv.ui.settings.screen.about.SettingsAboutScreen
 import org.jellyfin.androidtv.ui.settings.screen.authentication.SettingsAuthenticationAutoSignInScreen
@@ -19,6 +20,8 @@ import org.jellyfin.androidtv.ui.settings.screen.customization.SettingsCustomiza
 import org.jellyfin.androidtv.ui.settings.screen.customization.SettingsCustomizationWatchedIndicatorScreen
 import org.jellyfin.androidtv.ui.settings.screen.customization.subtitle.SettingsSubtitleTextStrokeColorScreen
 import org.jellyfin.androidtv.ui.settings.screen.customization.subtitle.SettingsSubtitlesBackgroundColorScreen
+import org.jellyfin.androidtv.ui.settings.screen.customization.subtitle.SettingsSubtitlesLanguageScreen
+import org.jellyfin.androidtv.ui.settings.screen.customization.subtitle.SettingsSubtitlesModeScreen
 import org.jellyfin.androidtv.ui.settings.screen.customization.subtitle.SettingsSubtitlesScreen
 import org.jellyfin.androidtv.ui.settings.screen.customization.subtitle.SettingsSubtitlesTextColorScreen
 import org.jellyfin.androidtv.ui.settings.screen.home.SettingsHomeNextUpCutoffScreen
@@ -37,6 +40,7 @@ import org.jellyfin.androidtv.ui.settings.screen.livetv.SettingsLiveTvGuideOptio
 import org.jellyfin.androidtv.ui.settings.screen.playback.SettingsPlaybackAVCLevelScreen
 import org.jellyfin.androidtv.ui.settings.screen.playback.SettingsPlaybackAdvancedScreen
 import org.jellyfin.androidtv.ui.settings.screen.playback.SettingsPlaybackAudioBehaviorScreen
+import org.jellyfin.androidtv.ui.settings.screen.playback.SettingsPlaybackAudioLanguageScreen
 import org.jellyfin.androidtv.ui.settings.screen.playback.SettingsPlaybackBitstreamAudioScreen
 import org.jellyfin.androidtv.ui.settings.screen.playback.SettingsPlaybackBufferLengthScreen
 import org.jellyfin.androidtv.ui.settings.screen.playback.SettingsPlaybackCodecScreen
@@ -64,6 +68,7 @@ import org.jellyfin.sdk.model.serializer.toUUIDOrNull
 
 object Routes {
 	const val MAIN = "/"
+	const val PERSONAL_PREFERENCES = "/personal-preferences"
 	const val AUTHENTICATION = "/authentication"
 	const val AUTHENTICATION_FROM_LOGIN = "/authentication+login"
 	const val AUTHENTICATION_SERVER = "/authentication/server/{serverId}"
@@ -82,6 +87,8 @@ object Routes {
 	const val CUSTOMIZATION_SUBTITLES_TEXT_COLOR = "/customization/subtitles/text-color"
 	const val CUSTOMIZATION_SUBTITLES_BACKGROUND_COLOR = "/customization/subtitles/background-color"
 	const val CUSTOMIZATION_SUBTITLES_EDGE_COLOR = "/customization/subtitles/edge-color"
+	const val CUSTOMIZATION_SUBTITLES_LANGUAGE = "/customization/subtitles/language"
+	const val CUSTOMIZATION_SUBTITLES_MODE = "/customization/subtitles/mode"
 	const val LIBRARIES = "/libraries"
 	const val LIBRARIES_DISPLAY = "/libraries/display/{itemId}/{displayPreferencesId}"
 	const val LIBRARIES_DISPLAY_IMAGE_SIZE = "/libraries/display/{itemId}/{displayPreferencesId}/image-size"
@@ -111,6 +118,7 @@ object Routes {
 	const val PLAYBACK_HDR_OVERRIDES = "/playback/hdr-overrides"
 	const val PLAYBACK_HDR_OVERRIDE = "/playback/hdr-overrides/{format}"
 	const val PLAYBACK_AUDIO_BEHAVIOR = "/playback/audio-behavior"
+	const val PLAYBACK_AUDIO_LANGUAGE = "/playback/audio-language"
 	const val PLAYBACK_CODEC = "/playback/codec"
 	const val PLAYBACK_BITSTREAM_AUDIO = "/playback/codec/bitstream-audio/{format}"
 	const val PLAYBACK_AVC_LEVEL = "/playback/codec/avc-level"
@@ -125,6 +133,9 @@ object Routes {
 val routes = mapOf<String, RouteComposable>(
 	Routes.MAIN to {
 		SettingsMainScreen()
+	},
+	Routes.PERSONAL_PREFERENCES to {
+		SettingsPersonalPreferencesScreen()
 	},
 	Routes.AUTHENTICATION to {
 		SettingsAuthenticationScreen(false)
@@ -184,6 +195,12 @@ val routes = mapOf<String, RouteComposable>(
 	},
 	Routes.CUSTOMIZATION_SUBTITLES_EDGE_COLOR to {
 		SettingsSubtitleTextStrokeColorScreen()
+	},
+	Routes.CUSTOMIZATION_SUBTITLES_LANGUAGE to {
+		SettingsSubtitlesLanguageScreen()
+	},
+	Routes.CUSTOMIZATION_SUBTITLES_MODE to {
+		SettingsSubtitlesModeScreen()
 	},
 	Routes.LIBRARIES to {
 		SettingsLibrariesScreen()
@@ -281,6 +298,9 @@ val routes = mapOf<String, RouteComposable>(
 	},
 	Routes.PLAYBACK_AUDIO_BEHAVIOR to {
 		SettingsPlaybackAudioBehaviorScreen()
+	},
+	Routes.PLAYBACK_AUDIO_LANGUAGE to {
+		SettingsPlaybackAudioLanguageScreen()
 	},
 	Routes.PLAYBACK_CODEC to {
 		SettingsPlaybackCodecScreen()

@@ -699,4 +699,34 @@
     <string name="truehd">TrueHD</string>
     <string name="eac3_atmos">DD+ Atmos</string>
     <string name="truehd_atmos">TrueHD Atmos</string>
+
+    <!-- Server-side personal preferences (shared with the web/mobile clients) -->
+    <string name="language_none">No preference (server default)</string>
+    <string name="pref_audio_language">Preferred audio language</string>
+    <string name="pref_audio_language_description">Audio tracks in this language are preferred during playback</string>
+    <string name="pref_subtitle_language">Preferred subtitle language</string>
+    <string name="pref_subtitle_language_description">Subtitles in this language are preferred during playback</string>
+    <string name="pref_subtitle_mode">Subtitle mode</string>
+    <string name="pref_subtitle_mode_description">When subtitles should be loaded automatically</string>
+    <string name="subtitle_mode_default">Default</string>
+    <string name="subtitle_mode_always">Always show</string>
+    <string name="subtitle_mode_only_forced">Only forced subtitles</string>
+    <string name="subtitle_mode_smart">Smart</string>
+    <string name="subtitle_mode_none">Never show</string>
+    <string name="pref_play_default_audio_track">Play default audio track</string>
+    <string name="pref_play_default_audio_track_description">Ignore the preferred audio language and play the track the media marks as default</string>
+    <string name="pref_remember_audio_selections">Remember audio selections</string>
+    <string name="pref_remember_audio_selections_description">Reuse the audio track you picked for this series in later episodes</string>
+    <string name="pref_remember_subtitle_selections">Remember subtitle selections</string>
+    <string name="pref_remember_subtitle_selections_description">Reuse the subtitle you picked for this series in later episodes</string>
+    <string name="pref_next_episode_auto_play">Play next episode automatically</string>
+    <string name="pref_next_episode_auto_play_description">Continue with the next episode when the current one ends</string>
+    <string name="pref_rewatching_in_next_up">Include rewatching in Next Up</string>
+    <string name="pref_rewatching_in_next_up_description">Keep shows you restart from the beginning in the Next Up row</string>
+    <string name="pref_episode_images_next_up">Use episode images in Next Up</string>
+    <string name="pref_episode_images_next_up_description">Show the episode artwork instead of the series artwork in Next Up and Continue Watching</string>
+    <string name="pref_personal_preferences">Personal preferences</string>
+    <string name="pref_personal_preferences_description">Stored on the server and shared with your other Jellyfin clients</string>
+    <string name="pref_long_press_speed_up">Long press to speed up</string>
+    <string name="pref_long_press_speed_up_description">Hold the fast-forward key to play at 2x speed instead of repeatedly seeking</string>
 </resources>

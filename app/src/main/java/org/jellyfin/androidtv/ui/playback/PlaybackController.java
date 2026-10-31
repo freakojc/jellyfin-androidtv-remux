@@ -17,6 +17,7 @@ import org.jellyfin.androidtv.data.compat.PlaybackException;
 import org.jellyfin.androidtv.data.compat.StreamInfo;
 import org.jellyfin.androidtv.data.compat.VideoOptions;
 import org.jellyfin.androidtv.data.model.DataRefreshService;
+import org.jellyfin.androidtv.preference.UserConfigurationPreferences;
 import org.jellyfin.androidtv.preference.UserPreferences;
 import org.jellyfin.androidtv.preference.UserSettingPreferences;
 import org.jellyfin.androidtv.preference.constant.NextUpBehavior;
@@ -33,6 +34,8 @@ import org.jellyfin.androidtv.util.profile.DeviceProfileKt;
 import org.jellyfin.androidtv.util.sdk.compat.JavaCompat;
 import org.jellyfin.sdk.api.client.ApiClient;
 import org.jellyfin.sdk.model.ServerVersion;
+import org.jellyfin.sdk.model.api.SubtitlePlaybackMode;
+import org.jellyfin.sdk.model.api.UserConfiguration;
 import org.jellyfin.sdk.model.api.BaseItemDto;
 import org.jellyfin.sdk.model.api.BaseItemKind;
 import org.jellyfin.sdk.model.api.DeviceProfile;
@@ -695,6 +698,43 @@ public class PlaybackController implements PlaybackControllerNotifiable {
                 mCurrentOptions.setSubtitleStreamIndex(preferredSubtitle < 0 ? null : preferredSubtitle);
             }
         }
+        // Server-side personal preferences (shared with the web/mobile clients). Applied after the
+        // local session memory and heuristics, so an explicitly configured preference wins.
+        UserConfigurationPreferences serverConfigPreferences = get(UserConfigurationPreferences.class);
+        UserConfiguration serverConfig = serverConfigPreferences.peek();
+        if (serverConfig != null) {
+            boolean audioPicked = selection != null && selection.getAudioStreamIndex() != null;
+            boolean subtitlePicked = selection != null && selection.getSubtitleStreamIndex() != null;
+
+            // Preferred audio language (skipped when "play default audio track" is enabled)
+            if (!audioPicked && !serverConfig.getPlayDefaultAudioTrack() && serverConfig.getAudioLanguagePreference() != null) {
+                Integer languageAudio = TrackPreferences.audioIndexForLanguage(
+                        response.getMediaSource().getMediaStreams(),
+                        serverConfig.getAudioLanguagePreference()
+                );
+                if (languageAudio != null) mDefaultAudioIndex = languageAudio;
+            }
+
+            // Subtitle mode plus preferred subtitle language
+            if (!subtitlePicked) {
+                final List<MediaStream> serverStreams = response.getMediaSource().getMediaStreams();
+                final SubtitlePlaybackMode subtitleMode = serverConfig.getSubtitleMode();
+                if (subtitleMode == SubtitlePlaybackMode.NONE) {
+                    mCurrentOptions.setSubtitleStreamIndex(null);
+                } else if (subtitleMode == SubtitlePlaybackMode.ONLY_FORCED) {
+                    Integer forced = TrackPreferences.forcedSubtitleIndex(serverStreams, serverConfig.getSubtitleLanguagePreference());
+                    mCurrentOptions.setSubtitleStreamIndex(forced);
+                } else if (subtitleMode == SubtitlePlaybackMode.ALWAYS || serverConfig.getSubtitleLanguagePreference() != null) {
+                    Integer languageSubtitle = TrackPreferences.subtitleIndexForLanguage(serverStreams, serverConfig.getSubtitleLanguagePreference());
+                    if (subtitleMode == SubtitlePlaybackMode.ALWAYS && languageSubtitle == null) {
+                        languageSubtitle = TrackPreferences.defaultSubtitle(serverStreams, mDefaultAudioIndex);
+                    }
+                    if (languageSubtitle != null) {
+                        mCurrentOptions.setSubtitleStreamIndex(languageSubtitle < 0 ? null : languageSubtitle);
+                    }
+                }
+            }
+        }
         Timber.i("default audio index set to %s remote default %s", mDefaultAudioIndex, response.getMediaSource().getDefaultAudioStreamIndex());
         Timber.i("default sub index set to %s remote default %s", mCurrentOptions.getSubtitleStreamIndex(), response.getMediaSource().getDefaultSubtitleStreamIndex());
 
@@ -1226,6 +1266,14 @@ public class PlaybackController implements PlaybackControllerNotifiable {
         }
 
         Timber.i("Moving to next queue item. Index: %s", (mCurrentIndex + 1));
+        // Server-side personal preference: "play next episode automatically"
+        UserConfigurationPreferences autoPlayPreferences = get(UserConfigurationPreferences.class);
+        UserConfiguration autoPlayConfig = autoPlayPreferences == null ? null : autoPlayPreferences.peek();
+        if (autoPlayConfig != null && !autoPlayConfig.getEnableNextEpisodeAutoPlay()) {
+            Timber.i("Next episode auto-play is disabled in the user configuration, ending playback");
+            endPlayback(true);
+            return;
+        }
         boolean stillWatchingEnabled = userPreferences.getValue().get(UserPreferences.Companion.getStillWatchingBehavior()) != StillWatchingBehavior.DISABLED;
         boolean nextUpEnabled = userPreferences.getValue().get(UserPreferences.Companion.getNextUpBehavior()) != NextUpBehavior.DISABLED;
         if ((stillWatchingEnabled || nextUpEnabled) && curItem.getType() != BaseItemKind.TRAILER) {

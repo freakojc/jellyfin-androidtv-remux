@@ -59,6 +59,18 @@ fun SettingsPlaybackAdvancedScreen() {
 			)
 		}
 
+		item {
+			var longPressSpeedUpEnabled by rememberPreference(userPreferences, UserPreferences.longPressSpeedUpEnabled)
+
+			ListButton(
+				headingContent = { Text(stringResource(R.string.pref_long_press_speed_up)) },
+				trailingContent = { Checkbox(checked = longPressSpeedUpEnabled) },
+				captionContent = { Text(stringResource(R.string.pref_long_press_speed_up_description)) },
+				onClick = { longPressSpeedUpEnabled = !longPressSpeedUpEnabled },
+				modifier = Modifier.focusKey("long_press_speed_up")
+			)
+		}
+
 		item { ListSection(headingContent = { Text(stringResource(R.string.pref_customization)) }) }
 
 		item {

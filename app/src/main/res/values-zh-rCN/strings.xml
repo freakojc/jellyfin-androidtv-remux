@@ -685,4 +685,34 @@
     <plurals name="days">
         <item quantity="other">%1$s 天</item>
     </plurals>
+
+    <!-- Server-side personal preferences (shared with the web/mobile clients) -->
+    <string name="language_none">不限（跟随服务器默认）</string>
+    <string name="pref_audio_language">首选的音频语言</string>
+    <string name="pref_audio_language_description">播放时优先选择该语言的音轨</string>
+    <string name="pref_subtitle_language">字幕语言偏好</string>
+    <string name="pref_subtitle_language_description">播放时优先加载该语言的字幕</string>
+    <string name="pref_subtitle_mode">字幕模式</string>
+    <string name="pref_subtitle_mode_description">决定何时自动加载字幕</string>
+    <string name="subtitle_mode_default">默认</string>
+    <string name="subtitle_mode_always">总是显示</string>
+    <string name="subtitle_mode_only_forced">仅强制字幕</string>
+    <string name="subtitle_mode_smart">智能</string>
+    <string name="subtitle_mode_none">不显示</string>
+    <string name="pref_play_default_audio_track">播放默认音轨</string>
+    <string name="pref_play_default_audio_track_description">忽略首选音频语言，直接播放媒体自身标记为默认的音轨</string>
+    <string name="pref_remember_audio_selections">记住音频选择</string>
+    <string name="pref_remember_audio_selections_description">同一剧集后续播放时沿用上次的音轨</string>
+    <string name="pref_remember_subtitle_selections">记住字幕选择</string>
+    <string name="pref_remember_subtitle_selections_description">同一剧集后续播放时沿用上次选择的字幕</string>
+    <string name="pref_next_episode_auto_play">自动播放下一集</string>
+    <string name="pref_next_episode_auto_play_description">本集播放结束后自动继续下一集</string>
+    <string name="pref_rewatching_in_next_up">在"next up"中包含重看内容</string>
+    <string name="pref_rewatching_in_next_up_description">从头开始重看的节目继续显示在"next up"行中</string>
+    <string name="pref_episode_images_next_up">在"next up"中使用剧集图片</string>
+    <string name="pref_episode_images_next_up_description">"next up"与"继续观看"显示剧集封面而非节目封面</string>
+    <string name="pref_personal_preferences">个人偏好</string>
+    <string name="pref_personal_preferences_description">保存在服务器端，与其他 Jellyfin 客户端共享</string>
+    <string name="pref_long_press_speed_up">长按加速</string>
+    <string name="pref_long_press_speed_up_description">按住快进键时以 2 倍速播放，松开后恢复原速（不再连续跳转）</string>
 </resources>

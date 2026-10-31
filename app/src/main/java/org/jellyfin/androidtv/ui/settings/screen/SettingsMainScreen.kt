@@ -66,6 +66,16 @@ fun SettingsMainScreen() {
 
 		item {
 			ListButton(
+				leadingContent = { Icon(painterResource(R.drawable.ic_users), contentDescription = null) },
+				headingContent = { Text(stringResource(R.string.pref_personal_preferences)) },
+				captionContent = { Text(stringResource(R.string.pref_personal_preferences_description)) },
+				onClick = { router.push(Routes.PERSONAL_PREFERENCES) },
+				modifier = Modifier.focusKey(Routes.PERSONAL_PREFERENCES),
+			)
+		}
+
+		item {
+			ListButton(
 				leadingContent = { Icon(painterResource(R.drawable.ic_error), contentDescription = null) },
 				headingContent = { Text(stringResource(R.string.pref_telemetry_category)) },
 				onClick = { router.push(Routes.TELEMETRY) },

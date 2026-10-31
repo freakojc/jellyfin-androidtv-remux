@@ -56,6 +56,7 @@ class SessionRepositoryImpl(
 	private val userRepository: UserRepository,
 	private val serverRepository: ServerRepository,
 	private val telemetryPreferences: TelemetryPreferences,
+	private val userConfigurationPreferences: org.jellyfin.androidtv.preference.UserConfigurationPreferences,
 ) : SessionRepository {
 	private val currentSessionMutex = Mutex()
 	private val _currentSession = MutableStateFlow<Session?>(null)
@@ -112,6 +113,7 @@ class SessionRepositoryImpl(
 	override fun destroyCurrentSession() {
 		Timber.i("Destroying current session")
 
+		userConfigurationPreferences.invalidate()
 		userRepository.setCurrentUser(null)
 		serverRepository.setCurrentServer(null)
 		_currentSession.value = null
@@ -156,6 +158,9 @@ class SessionRepositoryImpl(
 			val crashReportUrl = userApiClient.clientLogApi.logFileUrl()
 			telemetryPreferences[TelemetryPreferences.crashReportUrl] = crashReportUrl
 			telemetryPreferences[TelemetryPreferences.crashReportToken] = session.accessToken
+
+			// Load the server-side personal preferences for this user (audio/subtitle language etc.)
+			userConfigurationPreferences.refresh()
 		} else {
 			userRepository.setCurrentUser(null)
 			serverRepository.setCurrentServer(null)
