@@ -7,6 +7,7 @@ import androidx.leanback.widget.Row
 import org.jellyfin.androidtv.constant.QueryType
 import org.jellyfin.androidtv.data.querying.GetUserViewsRequest
 import org.jellyfin.androidtv.preference.UserPreferences
+import org.jellyfin.androidtv.preference.UserSettingPreferences
 import org.jellyfin.androidtv.ui.browsing.BrowseRowDef
 import org.jellyfin.androidtv.ui.itemhandling.ItemRowAdapter
 import org.jellyfin.androidtv.ui.presentation.CardPresenter
@@ -18,10 +19,13 @@ class HomeFragmentBrowseRowDefRow(
 	private val browseRowDef: BrowseRowDef
 ) : HomeFragmentRow, KoinComponent {
 	private val userPreferences by inject<UserPreferences>()
+	private val userSettingPreferences by inject<UserSettingPreferences>()
 
 	override fun addToRowsAdapter(context: Context, cardPresenter: CardPresenter, rowsAdapter: MutableObjectAdapter<Row>) {
 		val header = HeaderItem(browseRowDef.headerText)
-		val preferParentThumb = userPreferences[UserPreferences.seriesThumbnailsEnabled]
+		// Server-side preference: show the episode artwork instead of the series thumbnail
+		val useEpisodeImages = userSettingPreferences[UserSettingPreferences.useEpisodeImagesInNextUpAndResume]
+		val preferParentThumb = userPreferences[UserPreferences.seriesThumbnailsEnabled] && !useEpisodeImages
 
 		// Some of these members are probably never used and could be removed
 		val rowAdapter = when (browseRowDef.queryType) {

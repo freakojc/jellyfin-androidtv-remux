@@ -267,10 +267,16 @@ class UserPreferences(context: Context) : SharedPreferenceStore(
 		 */
 		var screensaverAgeRatingRequired = booleanPreference("screensaver_agerating_required", true)
 
+	/**
+	 * Delay when starting video playback after loading the video player.
+	 */
+	var videoStartDelay = longPreference("video_start_delay", 0)
+
 		/**
-		 * Delay when starting video playback after loading the video player.
+		 * Hold the fast-forward key to play at 2x speed instead of repeatedly seeking.
+		 * Ported from the mobile client's "press to speed up" behaviour.
 		 */
-		var videoStartDelay = longPreference("video_start_delay", 0)
+		var longPressSpeedUpEnabled = booleanPreference("pref_long_press_speed_up", false)
 
 		/**
 		 * The actions to take for each media segment type. Managed by the [MediaSegmentRepository].

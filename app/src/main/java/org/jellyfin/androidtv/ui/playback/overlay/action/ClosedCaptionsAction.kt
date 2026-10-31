@@ -7,6 +7,7 @@ import android.widget.PopupMenu
 import android.widget.Toast
 import org.jellyfin.androidtv.R
 import org.jellyfin.androidtv.ui.playback.PlaybackController
+import org.jellyfin.androidtv.ui.playback.RememberSelections
 import org.jellyfin.androidtv.ui.playback.overlay.CustomPlaybackTransportControlGlue
 import org.jellyfin.androidtv.ui.playback.overlay.VideoPlayerAdapter
 import org.jellyfin.androidtv.ui.playback.setSubtitleIndex
@@ -60,6 +61,7 @@ class ClosedCaptionsAction(
 			}
 			setOnMenuItemClickListener { item ->
 				playbackController.setSubtitleIndex(item.itemId)
+				RememberSelections.subtitle(playbackController.currentMediaSource?.mediaStreams, item.itemId)
 				true
 			}
 		}

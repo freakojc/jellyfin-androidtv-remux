@@ -6,6 +6,7 @@ import android.view.View
 import android.widget.PopupMenu
 import org.jellyfin.androidtv.R
 import org.jellyfin.androidtv.ui.playback.PlaybackController
+import org.jellyfin.androidtv.ui.playback.RememberSelections
 import org.jellyfin.androidtv.ui.playback.overlay.CustomPlaybackTransportControlGlue
 import org.jellyfin.androidtv.ui.playback.overlay.VideoPlayerAdapter
 
@@ -46,6 +47,7 @@ class SelectAudioAction(
 			}
 			setOnMenuItemClickListener { item ->
 				playbackController.switchAudioStream(item.itemId)
+				RememberSelections.audio(playbackController.currentMediaSource?.mediaStreams, item.itemId)
 				true
 			}
 		}
