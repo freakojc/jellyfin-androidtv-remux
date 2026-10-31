@@ -26,6 +26,7 @@ import org.jellyfin.androidtv.auth.model.UnknownQuickConnectState
 import org.jellyfin.androidtv.auth.repository.ServerRepository
 import org.jellyfin.androidtv.databinding.FragmentUserLoginQuickConnectBinding
 import org.jellyfin.androidtv.ui.startup.UserLoginViewModel
+import org.jellyfin.androidtv.util.sdk.describeChain
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
 
 class UserLoginQuickConnectFragment : Fragment() {
@@ -78,8 +79,13 @@ class UserLoginQuickConnectFragment : Fragment() {
 
 						AuthenticatingState -> binding.error.setText(R.string.login_authenticating)
 						RequireSignInState -> binding.error.setText(R.string.login_invalid_credentials)
-						ServerUnavailableState,
-						is ApiClientErrorLoginState -> binding.error.setText(R.string.login_server_unavailable)
+						ServerUnavailableState -> binding.error.setText(R.string.login_server_unavailable)
+						is ApiClientErrorLoginState -> binding.error.text = buildString {
+							append(getString(R.string.login_server_unavailable))
+							// Show the real reason (HTTP status / TLS / network error) for diagnostics
+							append("\n")
+							append(state.error.describeChain())
+						}
 						// Do nothing because the activity will respond to the new session
 						AuthenticatedState -> Unit
 						// Not initialized
