@@ -52,10 +52,14 @@ interface ServerRepository {
 	suspend fun deleteServer(server: UUID): Boolean
 
 	companion object {
-		val minimumServerVersion = Jellyfin.minimumVersion.copy(build = null)
+		// NOTE (local build): accept any server version. The SDK default minimum
+		// (Jellyfin.minimumVersion, 10.11.0) rejects older servers such as 10.10.7,
+		// showing "server version not supported" even when the connection works.
+		val minimumServerVersion = ServerVersion(0, 0, 0)
 		val recommendedServerVersion = Jellyfin.apiVersion.copy(build = null)
 
-		val upcomingMinimumServerVersion = ServerVersion(10, 11, 0)
+		// No future minimum either - do not nag about upcoming releases.
+		val upcomingMinimumServerVersion = ServerVersion(0, 0, 0)
 	}
 }
 

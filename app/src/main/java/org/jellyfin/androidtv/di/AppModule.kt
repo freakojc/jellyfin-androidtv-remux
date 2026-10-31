@@ -73,13 +73,49 @@ import org.koin.core.qualifier.named
 import org.koin.dsl.bind
 import org.koin.dsl.module
 import org.jellyfin.sdk.Jellyfin as JellyfinSdk
+import java.security.SecureRandom
+import java.security.cert.X509Certificate
+import javax.net.ssl.SSLContext
+import javax.net.ssl.TrustManager
+import javax.net.ssl.X509TrustManager
+import okhttp3.ConnectionSpec
 
 val defaultDeviceInfo = named("defaultDeviceInfo")
+
+/**
+ * Base OkHttp client that accepts any TLS certificate and any hostname and negotiates
+ * with maximum compatibility (all TLS versions / cipher suites, plus cleartext).
+ *
+ * SECURITY WARNING: this is a deliberate security downgrade (certificate verification
+ * disabled) intended only for servers using local/self-signed certificates, such as a
+ * home Jellyfin instance. Never enable this for builds distributed to untrusted networks.
+ */
+private fun createInsecureBaseClient(): okhttp3.OkHttpClient {
+	val insecureTrustManager = object : X509TrustManager {
+		override fun checkClientTrusted(chain: Array<X509Certificate>, authType: String) = Unit
+		override fun checkServerTrusted(chain: Array<X509Certificate>, authType: String) = Unit
+		override fun getAcceptedIssuers(): Array<X509Certificate> = emptyArray()
+	}
+
+	val sslContext = SSLContext.getInstance("TLS")
+	sslContext.init(null, arrayOf<TrustManager>(insecureTrustManager), SecureRandom())
+
+	return okhttp3.OkHttpClient.Builder()
+		.sslSocketFactory(sslContext.socketFactory, insecureTrustManager)
+		.hostnameVerifier { _, _ -> true }
+		// COMPATIBLE_TLS enables every TLS version and cipher suite the platform supports,
+		// so older home servers (TLS 1.0/1.1, self-signed, odd cipher suites) can handshake.
+		.connectionSpecs(listOf(ConnectionSpec.COMPATIBLE_TLS, ConnectionSpec.CLEARTEXT))
+		.retryOnConnectionFailure(true)
+		.followRedirects(true)
+		.followSslRedirects(true)
+		.build()
+}
 
 val appModule = module {
 	// SDK
 	single(defaultDeviceInfo) { androidDevice(get()) }
-	single { OkHttpFactory() }
+	single { OkHttpFactory(createInsecureBaseClient()) }
 	single { HttpClientOptions() }
 	single {
 		createJellyfin {

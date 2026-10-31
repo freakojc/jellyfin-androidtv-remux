@@ -127,6 +127,8 @@ dependencies {
 		}
 	}
 
+	implementation(libs.okhttp)
+
 	// Kotlin
 	implementation(libs.kotlinx.coroutines)
 	implementation(libs.kotlinx.serialization.json)
